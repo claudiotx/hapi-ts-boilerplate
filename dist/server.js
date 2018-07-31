@@ -10,6 +10,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const hapi_1 = require("hapi");
 const mongoose = require("mongoose");
+// GraphQL plugins
+const apollo_server_hapi_1 = require("apollo-server-hapi");
+const schema_1 = require("./graphql/schema");
 class Server {
     constructor(port = 3000) {
         this.routes = [];
@@ -40,10 +43,54 @@ class Server {
             process.exit();
         });
     }
+    registerPluginGraphiql() {
+        return this.server.register({
+            plugin: apollo_server_hapi_1.graphiqlHapi,
+            options: {
+                path: '/graphiql',
+                graphiqlOptions: {
+                    endpointURL: '/graphql'
+                },
+                route: {
+                    cors: true
+                }
+            }
+        });
+    }
+    registerPluginGraphql() {
+        return this.server.register({
+            plugin: apollo_server_hapi_1.graphqlHapi,
+            options: {
+                path: '/graphql',
+                graphqlOptions: {
+                    Schema: schema_1.default
+                },
+                route: {
+                    cors: true
+                }
+            }
+        });
+    }
+    // public registerSwaggerPlugin(): void {
+    //   const swaggerOptions = {
+    //     info: {
+    //       title: 'Test API Documentation',
+    //       version: Pack.version,
+    //     },
+    //   };
+    //   return this.server.register([
+    //     Inert,
+    //     Vision,
+    //     {
+    //       plugin: HapiSwagger,
+    //       options: swaggerOptions
+    //     }
+    //   ]);
+    // }
     start() {
         Promise.all([
-            // registerPluginGraphiql(),
-            // registerPluginGraphql(),
+            this.registerPluginGraphiql(),
+            this.registerPluginGraphql(),
             // registerSwaggerPlugin(),
             this.connectToDb(),
         ]).then(result => {
