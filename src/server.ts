@@ -6,6 +6,7 @@ import * as Inert from 'inert'; // Static file and directory handlers plugin for
 import * as Vision from 'vision'; // Templates rendering plugin support for hapi.js
 // GraphQL plugins
 import { graphqlHapi,  graphiqlHapi } from 'apollo-server-hapi';
+import Schema from './graphql/schema';
 
 class Server {
   protected server: any;
@@ -44,10 +45,58 @@ class Server {
     });
   }
 
+  public registerPluginGraphiql(): any {
+    return this.server.register({
+      plugin: graphiqlHapi,
+      options: {
+        path: '/graphiql',
+        graphiqlOptions: {
+          endpointURL: '/graphql'
+        },
+        route: {
+          cors: true
+        }
+      }
+    });
+  }
+  
+  public registerPluginGraphql(): any {  
+    return this.server.register({
+      plugin: graphqlHapi,
+      options: {
+        path: '/graphql',
+        graphqlOptions: {
+          Schema
+        },
+        route: {
+          cors: true
+        }
+      }
+    });
+  }
+  
+  // public registerSwaggerPlugin(): void {
+  //   const swaggerOptions = {
+  //     info: {
+  //       title: 'Test API Documentation',
+  //       version: Pack.version,
+  //     },
+  //   };
+    
+  //   return this.server.register([
+  //     Inert,
+  //     Vision,
+  //     {
+  //       plugin: HapiSwagger,
+  //       options: swaggerOptions
+  //     }
+  //   ]);
+  // }
+
   public start(): void {
     Promise.all([
-      // registerPluginGraphiql(),
-      // registerPluginGraphql(),
+      this.registerPluginGraphiql(),
+      this.registerPluginGraphql(),
       // registerSwaggerPlugin(),
       this.connectToDb(),
     ]).then(result => {
