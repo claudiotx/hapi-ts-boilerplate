@@ -62,3 +62,4 @@ typings/
 
 # Apple
 .DS_Store
+.dist
